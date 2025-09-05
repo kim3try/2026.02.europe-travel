@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 유럽 여행 일정</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #fefce8;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #0d9488, #0f766e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background-color: #f59e0b;
+            border-radius: 50%;
+            border: 2px solid #fefce8;
+        }
+        .timeline-item p.time {
+            color: #78716c;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        .timeline-item .cost {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background-color: #fde68a;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="text-stone-800">
+    <!-- Chosen Palette: Amber & Teal -->
+    <!-- Application Structure Plan: This SPA is designed as a single, scrollable page divided into three main sections: "친구와 함께하는 여행", "혼자 스페인 더 깊이", and "혼자 떠나는 중유럽 여행". The structure is chronological and linear, following the user's journey. Each section uses a detailed vertical timeline layout to present daily itineraries hour-by-hour, including specific activities and estimated costs for that day. A final summary block at the bottom aggregates the total budget, breaking it down by category (항공/기차, 숙소, 현지 경비). This structure prioritizes simplicity and readability, as the user's primary goal is to review and confirm a single, coherent travel plan rather than explore multiple options. The fixed, non-interactive layout ensures all information is visible at a glance. -->
+    <!-- Visualization & Content Choices: 1. Fixed Itinerary: Presented as a detailed vertical timeline (HTML/CSS) with daily breakdowns. Goal: Inform. 2. Fixed Budget Summary: A static list (HTML/CSS) provides a clear cost breakdown for each stage. Goal: Inform. 3. Total Budget Summary: A final static list shows the total cost of the entire trip, categorized for clarity. Goal: Inform. Justification: This combination of detailed timelines and categorized text is the most direct and effective way to present a confirmed travel itinerary and budget. No dynamic interaction or charts are necessary since the plan is final, and the user's primary task is consumption, not comparison. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold gradient-text mb-2">나만의 유럽 여행 일정</h1>
+            <p class="text-stone-600 text-lg">2026년 2월, 확정된 여행 계획입니다.</p>
+        </header>
+
+        <main>
+            <!-- SECTION 1: With Friend -->
+            <section class="mb-16 bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold text-stone-800 mb-8 border-l-4 border-amber-500 pl-4">1단계: 친구와 함께 (2/1 ~ 2/10)</h2>
+                <p class="text-stone-600 mb-6 pl-6">
+                    친구와 함께하는 10일간의 여행입니다. 이 기간에는 숙소와 식비 등을 함께 부담하므로 1인당 비용이 저렴해집니다.
+                </p>
+                <div class="relative border-l-2 border-amber-300 ml-5 pl-8 space-y-8">
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/1 (일) - 인천 출발 → 바르셀로나(BCN) 도착</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">PM 12:40</p> 인천(ICN) 출발 (에어프랑스 경유)<br>
+                            <p class="time">PM 10:55</p> 바르셀로나(BCN) 도착 후 숙소 체크인 및 휴식.
+                        </p>
+                        <p class="cost">예상 비용: 항공권에 포함</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/2 (월) - 바르셀로나 → 포르투 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 저가 항공으로 포르투(OPO)로 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 동루이스 1세 다리, 포르투 와이너리 투어 시작.
+                        </p>
+                        <p class="cost">예상 비용: 약 27만원 (1인당) <br>(항공권 약 10만원, 숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/3 (화) - 포르투 시내 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 포르투 대성당, 상벤투 역, 렐루 서점 방문.<br>
+                            <p class="time">오후</p> 도루 강변을 거닐며 낭만적인 분위기 만끽.
+                        </p>
+                        <p class="cost">예상 비용: 약 17만원 (1인당) <br>(숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/4 (수) - 포르투 → 리스본 기차 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차를 타고 리스본으로 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 벨렝탑, 발견의 탑, 제로니무스 수도원 등 시내 투어.
+                        </p>
+                        <p class="cost">예상 비용: 약 21만원 (1인당) <br>(기차비 약 4만원, 숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/5 (목) - 리스본 근교 **신트라** 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차로 신트라 이동 후 페나성 방문.<br>
+                            <p class="time">오후</p> 헤갈레이라 별장과 호카곶에 방문 후 리스본 복귀.
+                        </p>
+                        <p class="cost">예상 비용: 약 20만원 (1인당) <br>(교통비 약 3만원, 숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/6 (금) - 리스본 → 바르셀로나 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 저가 항공으로 바르셀로나(BCN) 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 람블라스 거리, 보케리아 시장 구경.
+                        </p>
+                        <p class="cost">예상 비용: 약 27만원 (1인당) <br>(항공권 약 10만원, 숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/7 (토) - 바르셀로나 **가우디 투어**</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 사그라다 파밀리아 성당 방문(사전 예약 필수).<br>
+                            <p class="time">오후</p> 구엘 공원, 카사 바트요 등 가우디 건축물 투어.
+                        </p>
+                        <p class="cost">예상 비용: 약 17만원 (1인당) <br>(숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item text-amber-600 font-bold">
+                        <strong class="text-lg"><i class="fas fa-futbol mr-2"></i>2/8 (일) - FC 바르셀로나 홈 경기 관람</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 몬주익 언덕이나 해변을 둘러본 후,<br>
+                            <p class="time">오후</p> 유니폼 구매 후 축구 경기 관람.
+                        </p>
+                        <p class="cost">예상 비용: 약 37만원 (1인당) <br>(숙소비 약 7만원, 식비/활동비 약 30만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/9 (월) - 바르셀로나 시내 쇼핑 및 미식</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 고딕 지구 쇼핑.<br>
+                            <p class="time">오후</p> 타파스 맛집 방문하며 스페인 미식 만끽.
+                        </p>
+                        <p class="cost">예상 비용: 약 17만원 (1인당) <br>(숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/10 (화) - 친구 귀국 (오후)</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 친구와 마지막 식사 후 공항으로 이동.<br>
+                            <p class="time">오후</p> 친구 귀국 후 혼자 스페인 여행 시작.
+                        </p>
+                        <p class="cost">예상 비용: 약 12만원 (1인당) <br>(숙소비 약 7만원, 식비/활동비 약 5만원)</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 2: Solo in Spain -->
+            <section class="mb-16 bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold text-stone-800 mb-8 border-l-4 border-amber-500 pl-4">2단계: 혼자, 스페인 더 깊이 (2/10 ~ 2/15)</h2>
+                <p class="text-stone-600 mb-6 pl-6">
+                    친구와 헤어진 후, 스페인 남부의 열정과 수도 마드리드의 현대적인 매력을 경험하는 코스입니다.
+                </p>
+                <div class="relative border-l-2 border-amber-300 ml-5 pl-8 space-y-8">
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/10 (화) - 바르셀로나 → **세비야** 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오후</p> 저가 항공으로 세비야(SVQ) 이동.<br>
+                            <p class="time">저녁</p> 숙소 체크인 후 정열적인 플라멩코 공연 관람.
+                        </p>
+                        <p class="cost">예상 비용: 약 32만원 (1인당) <br>(항공권 약 7만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/11 (수) - 세비야 시내 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **스페인 광장** 방문 후 사진 촬영.<br>
+                            <p class="time">오후</p> 세비야 대성당과 알카사르 궁전 둘러보기.<br>
+                            <p class="time">저녁</p> 타파스 맛집 탐방.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/12 (목) - 세비야 근교 **론다** 당일치기</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차/버스로 론다 이동.<br>
+                            <p class="time">오후</p> 누에보 다리, 투우장 등 둘러본 후 세비야 복귀.
+                        </p>
+                        <p class="cost">예상 비용: 약 29만원 (1인당) <br>(기차/버스비 약 4만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/13 (금) - 세비야 → **그라나다** 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차/버스로 그라나다 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 알바이신 지구 산책.
+                        </p>
+                        <p class="cost">예상 비용: 약 30만원 (1인당) <br>(기차/버스비 약 5만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/14 (토) - 그라나다 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **알람브라 궁전**과 헤네랄리페 정원 방문(사전 예약 필수).<br>
+                            <p class="time">오후</p> 산 니콜라스 전망대에서 도시 전경 감상.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/15 (일) - 그라나다 → **마드리드** 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차로 마드리드 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 저녁에는 **레알 마드리드 홈 경기** 관람.
+                        </p>
+                        <p class="cost">예상 비용: 약 35만원 (1인당) <br>(기차비 약 5만원, 숙소비 약 15만원, 식비/활동비 약 15만원)</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: Solo in Central Europe -->
+            <section class="mb-16 bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold text-stone-800 mb-8 border-l-4 border-amber-500 pl-4">3단계: 혼자, 중유럽 여행 (2/16 ~ 2/26)</h2>
+                <p class="text-stone-600 mb-6 pl-6">
+                    마드리드에서 시작하여 부다페스트, 빈, 프라하를 거치는 효율적인 동선입니다.
+                </p>
+                <div class="relative border-l-2 border-amber-300 ml-5 pl-8 space-y-8">
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/16 (월) - 마드리드(MAD) → **부다페스트(BUD)**로 저가 항공 이동.</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전/오후</p> 저가 항공으로 부다페스트 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 휴식. 저녁에는 **국회의사당 야경** 감상.
+                        </p>
+                        <p class="cost">예상 비용: 약 35만원 (1인당) <br>(항공권 약 10만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/17 (화) - 부다페스트 시내 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **부다 왕궁**과 어부의 요새 방문.<br>
+                            <p class="time">오후</p> 헝가리 국회의사당, 성 이슈트반 대성당 등 시내 둘러보기.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/18 (수) - 부다페스트 → **빈(VIE)** 기차 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차를 타고 오스트리아 빈으로 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 **오페라 하우스** 주변을 거닐며 빈의 분위기 만끽.
+                        </p>
+                        <p class="cost">예상 비용: 약 30만원 (1인당) <br>(기차비 약 5만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/19 (목) - 빈 시내 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **쇤브룬 궁전** 방문.<br>
+                            <p class="time">오후</p> **미술사 박물관**을 관람하며 오스트리아 예술 감상.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/20 (금) - 빈 → **프라하(PRG)** 기차 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차를 타고 프라하로 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 **까를교**를 걸으며 낭만적인 저녁 시간 보내기.
+                        </p>
+                        <p class="cost">예상 비용: 약 30만원 (1인당) <br>(기차비 약 5만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/21 (토) - **프라하 성 투어**</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **프라하 성**, 성 비투스 대성당, 황금 소로 등 둘러보기.<br>
+                            <p class="time">오후</p> **천문 시계탑**에 올라 도시 전경 감상.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/22 (일) - 프라하 시내 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **유대인 지구**를 중심으로 숨겨진 명소들 방문.<br>
+                            <p class="time">오후</p> 쇼핑 거리를 거닐며 자유 시간.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/23 (월) - 프라하에서 휴식</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">종일</p> 여행의 피로를 풀며 휴식. 분위기 좋은 카페에서 시간 보내기.
+                        </p>
+                        <p class="cost">예상 비용: 약 20만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 5만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/24 (화) - 프라하에서 휴식</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">종일</p> 여유롭게 프라하 시내를 둘러보거나 기념품 구매하며 여행 정리.
+                        </p>
+                        <p class="cost">예상 비용: 약 20만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 5만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/25 (수) - 프라하에서 휴식</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">종일</p> 귀국 전 마지막으로 여행의 여운을 느끼며 휴식.
+                        </p>
+                        <p class="cost">예상 비용: 약 20만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 5만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/26 (목) - 부다페스트 → **인천** 귀국</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 부다페스트(BUD) 공항으로 이동하여 한국으로 돌아가는 비행기 탑승.
+                        </p>
+                        <p class="cost">예상 비용: 항공권 비용에 포함</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/27 (금) - 한국 도착</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오후</p> 인천(ICN) 공항에 도착하며 한 달간의 유럽 여행을 마무리합니다.
+                        </p>
+                        <p class="cost">예상 비용: 0원</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Final Budget Summary -->
+            <section class="bg-teal-800 text-white p-8 rounded-2xl shadow-xl">
+                <h2 class="text-3xl font-bold mb-6 text-center">전체 여행 총 예산</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-lg">
+                    <div class="p-4 bg-teal-700 rounded-lg">
+                        <p class="font-semibold mb-1">🛩️ 항공권</p>
+                        <p>약 143만원</p>
+                    </div>
+                    <div class="p-4 bg-teal-700 rounded-lg">
+                        <p class="font-semibold mb-1">🏨 숙소</p>
+                        <p>약 350만원</p>
+                    </div>
+                    <div class="p-4 bg-teal-700 rounded-lg">
+                        <p class="font-semibold mb-1">🚇 현지 교통수단</p>
+                        <p>약 45만원</p>
+                    </div>
+                    <div class="p-4 bg-teal-700 rounded-lg">
+                        <p class="font-semibold mb-1">💶 식비 & 활동비</p>
+                        <p>약 250만원</p>
+                    </div>
+                </div>
+                <div class="text-center mt-8">
+                    <p class="text-2xl font-bold">총 합계: 약 788만원</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

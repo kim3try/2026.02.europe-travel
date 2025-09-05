@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나만의 유럽 한 달 여행 플래너</title>
+    <title>나만의 유럽 여행 일정</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,405 +17,340 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        .timeline-item {
+            position: relative;
+            padding-left: 2.5rem;
+        }
         .timeline-item::before {
             content: '';
             position: absolute;
-            left: -20px;
-            top: 50%;
-            transform: translateY(-50%);
+            left: 0;
+            top: 0.5rem;
             width: 12px;
             height: 12px;
             background-color: #f59e0b;
             border-radius: 50%;
             border: 2px solid #fefce8;
         }
-        .tab-active {
-            background-color: #0d9488 !important;
-            color: white !important;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        .timeline-item p.time {
+            color: #78716c;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
         }
-        .chart-container { 
-            position: relative; 
-            width: 100%; 
-            max-width: 800px; 
-            margin-left: auto; 
-            margin-right: auto; 
+        .timeline-item .cost {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background-color: #fde68a;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
             height: 300px;
-            max-height: 400px; 
+            max-height: 400px;
         }
-        @media (min-width: 768px) { 
-            .chart-container { 
-                height: 400px; 
-            } 
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
         }
     </style>
 </head>
 <body class="text-stone-800">
     <!-- Chosen Palette: Amber & Teal -->
-    <!-- Application Structure Plan: The app uses a thematic section approach. First, it presents the two fixed itinerary parts (with friend, solo in Spain) as a clear, non-interactive timeline to establish context. A dedicated budget summary section is added below this. The core interactive element is the "Solo Trip Planner" section where users click one of four course buttons. This action dynamically updates a detailed content area and highlights the corresponding data in a budget comparison bar chart. This design was chosen for its clarity and task-oriented flow, allowing the user to easily compare the variable parts of their trip against the fixed foundation, with transparent cost breakdowns. -->
-    <!-- Visualization & Content Choices: 1. Fixed Itinerary: Presented as a vertical timeline (HTML/CSS) to show chronological flow. Goal: Inform. 2. Fixed Budget Summary: A static list (HTML/CSS) to provide a clear cost breakdown for the first two stages. Goal: Inform. 3. Solo Trip Options: Users interact via buttons. Goal: Compare/Explore. 4. Course Details & Budget: Dynamically updated text block (JS) with detailed budget lists for each course. Goal: Inform. 5. Budget Comparison Chart: An interactive horizontal bar chart (Chart.js/Canvas) visually compares the total cost of the four main solo trip courses. Goal: Compare. Justification: This combination of static context, detailed breakdowns, and dynamic comparison allows for easy exploration and informed decision-making without overwhelming the user. -->
+    <!-- Application Structure Plan: This SPA is designed as a single, scrollable page divided into three main sections: "친구와 함께하는 여행", "혼자 스페인 더 깊이", and "혼자 떠나는 중유럽 여행". The structure is chronological and linear, following the user's journey. Each section uses a detailed vertical timeline layout to present daily itineraries hour-by-hour, including specific activities and estimated costs for that day. A final summary block at the bottom aggregates the total budget, breaking it down by category (항공/기차, 숙소, 현지 경비). This structure prioritizes simplicity and readability, as the user's primary goal is to review and confirm a single, coherent travel plan rather than explore multiple options. The fixed, non-interactive layout ensures all information is visible at a glance. -->
+    <!-- Visualization & Content Choices: 1. Fixed Itinerary: Presented as a detailed vertical timeline (HTML/CSS) with daily breakdowns. Goal: Inform. 2. Fixed Budget Summary: A static list (HTML/CSS) provides a clear cost breakdown for each stage. Goal: Inform. 3. Total Budget Summary: A final static list shows the total cost of the entire trip, categorized for clarity. Goal: Inform. Justification: This combination of detailed timelines and categorized text is the most direct and effective way to present a confirmed travel itinerary and budget. No dynamic interaction or charts are necessary since the plan is final, and the user's primary task is consumption, not comparison. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
     <div class="container mx-auto p-4 md:p-8 max-w-6xl">
         <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-bold gradient-text mb-2">나만의 유럽 한 달 여행 플래너</h1>
-            <p class="text-stone-600 text-lg">2026년 2월, 최고의 한 달을 계획해보세요.</p>
+            <h1 class="text-4xl md:text-5xl font-bold gradient-text mb-2">나만의 유럽 여행 일정</h1>
+            <p class="text-stone-600 text-lg">2026년 2월, 확정된 여행 계획입니다.</p>
         </header>
 
         <main>
-            <!-- SECTION 1: Fixed Itinerary -->
-            <section class="mb-16">
-                <h2 class="text-3xl font-bold text-stone-800 mb-8 border-l-4 border-amber-500 pl-4">확정된 여행 (2/1 ~ 2/15)</h2>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Part 1: With Friend -->
-                    <div class="bg-white p-6 rounded-2xl shadow-lg">
-                        <h3 class="text-2xl font-semibold mb-6 text-teal-700 flex items-center"><i class="fas fa-users mr-3"></i>친구와 함께 (2/1 ~ 2/10)</h3>
-                        <div class="relative border-l-2 border-amber-300 ml-5 pl-8 space-y-6">
-                            <div class="timeline-item"><strong>2/1 (일):</strong> 인천 출발 → 바르셀로나(BCN) 도착</div>
-                            <div class="timeline-item"><strong>2/2 (월):</strong> 바르셀로나 → 포르투 이동</div>
-                            <div class="timeline-item"><strong>2/3 (화):</strong> 포르투 시내 투어</div>
-                            <div class="timeline-item"><strong>2/4 (수):</strong> 포르투 → 리스본 기차 이동</div>
-                            <div class="timeline-item"><strong>2/5 (목):</strong> 리스본 근교 신트라 투어</div>
-                            <div class="timeline-item"><strong>2/6 (금):</strong> 리스본 → 바르셀로나 이동</div>
-                            <div class="timeline-item"><strong>2/7 (토):</strong> 바르셀로나 가우디 투어</div>
-                            <div class="timeline-item text-amber-600 font-bold"><i class="fas fa-futbol mr-2"></i><strong>2/8 (일):</strong> FC 바르셀로나 홈 경기 관람</div>
-                            <div class="timeline-item"><strong>2/9 (월):</strong> 바르셀로나 시내 쇼핑 및 미식</div>
-                            <div class="timeline-item"><strong>2/10 (화):</strong> 친구 귀국 (오후)</div>
-                        </div>
+            <!-- SECTION 1: With Friend -->
+            <section class="mb-16 bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold text-stone-800 mb-8 border-l-4 border-amber-500 pl-4">1단계: 친구와 함께 (2/1 ~ 2/10)</h2>
+                <p class="text-stone-600 mb-6 pl-6">
+                    친구와 함께하는 10일간의 여행입니다. 이 기간에는 숙소와 식비 등을 함께 부담하므로 1인당 비용이 저렴해집니다.
+                </p>
+                <div class="relative border-l-2 border-amber-300 ml-5 pl-8 space-y-8">
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/1 (일) - 인천 출발 → 바르셀로나(BCN) 도착</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">PM 12:40</p> 인천(ICN) 출발 (에어프랑스 경유)<br>
+                            <p class="time">PM 10:55</p> 바르셀로나(BCN) 도착 후 숙소 체크인 및 휴식.
+                        </p>
+                        <p class="cost">예상 비용: 항공권에 포함</p>
                     </div>
-                    <!-- Part 2: Solo in Spain -->
-                    <div class="bg-white p-6 rounded-2xl shadow-lg">
-                        <h3 class="text-2xl font-semibold mb-6 text-teal-700 flex items-center"><i class="fas fa-user mr-3"></i>혼자, 스페인 더 깊이 (2/10 ~ 2/15)</h3>
-                         <div class="relative border-l-2 border-amber-300 ml-5 pl-8 space-y-6">
-                            <div class="timeline-item"><strong>2/10 (화):</strong> 바르셀로나 → 세비야 이동</div>
-                            <div class="timeline-item"><strong>2/11 (수):</strong> 세비야 투어 (플라멩코 공연, 스페인 광장)</div>
-                            <div class="timeline-item"><strong>2/12 (목):</strong> 세비야 투어 (대성당, Alcázar)</div>
-                            <div class="timeline-item"><strong>2/13 (금):</strong> 세비야 → 그라나다 기차 또는 버스 이동</div>
-                            <div class="timeline-item"><strong>2/14 (토):</strong> 그라나다 투어 (알람브라 궁전, 알바이신)</div>
-                            <div class="timeline-item"><strong>2/15 (일):</strong> 그라나다 → 마드리드 기차 이동</div>
-                            <div class="timeline-item text-amber-600 font-bold"><i class="fas fa-futbol mr-2"></i><strong>2/15 저녁:</strong> 레알 마드리드 홈 경기 관람</div>
-                        </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/2 (월) - 바르셀로나 → 포르투 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 저가 항공으로 포르투(OPO)로 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 동루이스 1세 다리, 포르투 와이너리 투어 시작.
+                        </p>
+                        <p class="cost">예상 비용: 약 27만원 (1인당) <br>(항공권 약 10만원, 숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/3 (화) - 포르투 시내 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 포르투 대성당, 상벤투 역, 렐루 서점 방문.<br>
+                            <p class="time">오후</p> 도루 강변을 거닐며 낭만적인 분위기 만끽.
+                        </p>
+                        <p class="cost">예상 비용: 약 17만원 (1인당) <br>(숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/4 (수) - 포르투 → 리스본 기차 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차를 타고 리스본으로 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 벨렝탑, 발견의 탑, 제로니무스 수도원 등 시내 투어.
+                        </p>
+                        <p class="cost">예상 비용: 약 21만원 (1인당) <br>(기차비 약 4만원, 숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/5 (목) - 리스본 근교 **신트라** 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차로 신트라 이동 후 페나성 방문.<br>
+                            <p class="time">오후</p> 헤갈레이라 별장과 호카곶에 방문 후 리스본 복귀.
+                        </p>
+                        <p class="cost">예상 비용: 약 20만원 (1인당) <br>(교통비 약 3만원, 숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/6 (금) - 리스본 → 바르셀로나 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 저가 항공으로 바르셀로나(BCN) 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 람블라스 거리, 보케리아 시장 구경.
+                        </p>
+                        <p class="cost">예상 비용: 약 27만원 (1인당) <br>(항공권 약 10만원, 숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/7 (토) - 바르셀로나 **가우디 투어**</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 사그라다 파밀리아 성당 방문(사전 예약 필수).<br>
+                            <p class="time">오후</p> 구엘 공원, 카사 바트요 등 가우디 건축물 투어.
+                        </p>
+                        <p class="cost">예상 비용: 약 17만원 (1인당) <br>(숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item text-amber-600 font-bold">
+                        <strong class="text-lg"><i class="fas fa-futbol mr-2"></i>2/8 (일) - FC 바르셀로나 홈 경기 관람</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 몬주익 언덕이나 해변을 둘러본 후,<br>
+                            <p class="time">오후</p> 유니폼 구매 후 축구 경기 관람.
+                        </p>
+                        <p class="cost">예상 비용: 약 37만원 (1인당) <br>(숙소비 약 7만원, 식비/활동비 약 30만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/9 (월) - 바르셀로나 시내 쇼핑 및 미식</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 고딕 지구 쇼핑.<br>
+                            <p class="time">오후</p> 타파스 맛집 방문하며 스페인 미식 만끽.
+                        </p>
+                        <p class="cost">예상 비용: 약 17만원 (1인당) <br>(숙소비 약 7만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/10 (화) - 친구 귀국 (오후)</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 친구와 마지막 식사 후 공항으로 이동.<br>
+                            <p class="time">오후</p> 친구 귀국 후 혼자 스페인 여행 시작.
+                        </p>
+                        <p class="cost">예상 비용: 약 12만원 (1인당) <br>(숙소비 약 7만원, 식비/활동비 약 5만원)</p>
                     </div>
                 </div>
-                <div class="bg-stone-100 p-6 rounded-2xl shadow-inner mt-8">
-                    <h3 class="text-2xl font-bold text-stone-700 mb-4 text-center">확정 여행 예산 (1인 기준)</h3>
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-stone-600">
-                        <div>
-                            <p class="font-semibold text-stone-800 mb-1">1단계: 친구와 함께 (약 10일)</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1">
-                                <li>국제선 항공권 (인천→바르셀로나 왕복): 약 100만원</li>
-                                <li>유럽 내 항공권 (바르셀로나↔포르투갈): 약 25만원</li>
-                                <li>숙소(9박): 약 135만원</li>
-                                <li>현지 교통수단: 약 20만원</li>
-                                <li>식비 및 활동비: 약 90만원</li>
-                            </ul>
-                            <p class="text-stone-800 font-bold mt-2">1단계 총비용: 약 370만원</p>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-stone-800 mb-1">2단계: 혼자 스페인 (약 5일)</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1">
-                                <li>항공/기차표 (스페인 내): 약 15만원</li>
-                                <li>숙소(5박): 약 75만원</li>
-                                <li>현지 교통수단: 약 8만원</li>
-                                <li>식비 및 활동비: 약 50만원</li>
-                            </ul>
-                            <p class="text-stone-800 font-bold mt-2">2단계 총비용: 약 148만원</p>
-                        </div>
-                        <div class="md:col-span-2 lg:col-span-1">
-                            <p class="font-semibold text-stone-800 mb-1">축구 경기 관련 추가 비용</p>
-                            <ul class="list-disc list-inside ml-4 space-y-1">
-                                <li>FC바르셀로나 경기 티켓: 약 15만원</li>
-                                <li>레알 마드리드 경기 티켓: 약 20만원</li>
-                                <li>축구 유니폼: 약 15만원</li>
-                            </ul>
-                            <p class="text-stone-800 font-bold mt-2">경기 및 유니폼 총 비용: 약 50만원</p>
-                        </div>
+            </section>
+            
+            <!-- SECTION 2: Solo in Spain -->
+            <section class="mb-16 bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold text-stone-800 mb-8 border-l-4 border-amber-500 pl-4">2단계: 혼자, 스페인 더 깊이 (2/10 ~ 2/15)</h2>
+                <p class="text-stone-600 mb-6 pl-6">
+                    친구와 헤어진 후, 스페인 남부의 열정과 수도 마드리드의 현대적인 매력을 경험하는 코스입니다.
+                </p>
+                <div class="relative border-l-2 border-amber-300 ml-5 pl-8 space-y-8">
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/10 (화) - 바르셀로나 → **세비야** 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오후</p> 저가 항공으로 세비야(SVQ) 이동.<br>
+                            <p class="time">저녁</p> 숙소 체크인 후 정열적인 플라멩코 공연 관람.
+                        </p>
+                        <p class="cost">예상 비용: 약 32만원 (1인당) <br>(항공권 약 7만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/11 (수) - 세비야 시내 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **스페인 광장** 방문 후 사진 촬영.<br>
+                            <p class="time">오후</p> 세비야 대성당과 알카사르 궁전 둘러보기.<br>
+                            <p class="time">저녁</p> 타파스 맛집 탐방.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/12 (목) - 세비야 근교 **론다** 당일치기</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차/버스로 론다 이동.<br>
+                            <p class="time">오후</p> 누에보 다리, 투우장 등 둘러본 후 세비야 복귀.
+                        </p>
+                        <p class="cost">예상 비용: 약 29만원 (1인당) <br>(기차/버스비 약 4만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/13 (금) - 세비야 → **그라나다** 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차/버스로 그라나다 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 알바이신 지구 산책.
+                        </p>
+                        <p class="cost">예상 비용: 약 30만원 (1인당) <br>(기차/버스비 약 5만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/14 (토) - 그라나다 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **알람브라 궁전**과 헤네랄리페 정원 방문(사전 예약 필수).<br>
+                            <p class="time">오후</p> 산 니콜라스 전망대에서 도시 전경 감상.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/15 (일) - 그라나다 → **마드리드** 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차로 마드리드 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 저녁에는 **레알 마드리드 홈 경기** 관람.
+                        </p>
+                        <p class="cost">예상 비용: 약 35만원 (1인당) <br>(기차비 약 5만원, 숙소비 약 15만원, 식비/활동비 약 15만원)</p>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION 2: Interactive Solo Trip Planner -->
-            <section>
-                <h2 class="text-3xl font-bold text-stone-800 mb-2 border-l-4 border-amber-500 pl-4">나만의 여행 후반부 (2/16 ~ 2/27)</h2>
-                <p class="text-stone-600 mb-8 pl-6">마드리드 경기 관람 후, 어떤 여행을 떠나볼까요? 아래 옵션을 선택해 확인해보세요.</p>
-                
-                <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
-                    <button class="tab-btn" data-course="italy">🇮🇹 이탈리아</button>
-                    <button class="tab-btn tab-active" data-course="centralEurope">🇦🇹 중유럽</button>
-                    <button class="tab-btn" data-course="franceUk">🇫🇷 프랑스 & 영국</button>
-                    <button class="tab-btn" data-course="switzerland">🇨🇭 스위스</button>
+            <!-- SECTION 3: Solo in Central Europe -->
+            <section class="mb-16 bg-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold text-stone-800 mb-8 border-l-4 border-amber-500 pl-4">3단계: 혼자, 중유럽 여행 (2/16 ~ 2/26)</h2>
+                <p class="text-stone-600 mb-6 pl-6">
+                    마드리드에서 시작하여 부다페스트, 빈, 프라하를 거치는 효율적인 동선입니다.
+                </p>
+                <div class="relative border-l-2 border-amber-300 ml-5 pl-8 space-y-8">
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/16 (월) - 마드리드(MAD) → **부다페스트(BUD)**로 저가 항공 이동.</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전/오후</p> 저가 항공으로 부다페스트 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 휴식. 저녁에는 **국회의사당 야경** 감상.
+                        </p>
+                        <p class="cost">예상 비용: 약 35만원 (1인당) <br>(항공권 약 10만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/17 (화) - 부다페스트 시내 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **부다 왕궁**과 어부의 요새 방문.<br>
+                            <p class="time">오후</p> 헝가리 국회의사당, 성 이슈트반 대성당 등 시내 둘러보기.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/18 (수) - 부다페스트 → **빈(VIE)** 기차 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차를 타고 오스트리아 빈으로 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 **오페라 하우스** 주변을 거닐며 빈의 분위기 만끽.
+                        </p>
+                        <p class="cost">예상 비용: 약 30만원 (1인당) <br>(기차비 약 5만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/19 (목) - 빈 시내 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **쇤브룬 궁전** 방문.<br>
+                            <p class="time">오후</p> **미술사 박물관**을 관람하며 오스트리아 예술 감상.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/20 (금) - 빈 → **프라하(PRG)** 기차 이동</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 기차를 타고 프라하로 이동.<br>
+                            <p class="time">오후</p> 숙소 체크인 후 **까를교**를 걸으며 낭만적인 저녁 시간 보내기.
+                        </p>
+                        <p class="cost">예상 비용: 약 30만원 (1인당) <br>(기차비 약 5만원, 숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/21 (토) - **프라하 성 투어**</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **프라하 성**, 성 비투스 대성당, 황금 소로 등 둘러보기.<br>
+                            <p class="time">오후</p> **천문 시계탑**에 올라 도시 전경 감상.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/22 (일) - 프라하 시내 투어</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> **유대인 지구**를 중심으로 숨겨진 명소들 방문.<br>
+                            <p class="time">오후</p> 쇼핑 거리를 거닐며 자유 시간.
+                        </p>
+                        <p class="cost">예상 비용: 약 25만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 10만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/23 (월) - 프라하에서 휴식</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">종일</p> 여행의 피로를 풀며 휴식. 분위기 좋은 카페에서 시간 보내기.
+                        </p>
+                        <p class="cost">예상 비용: 약 20만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 5만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/24 (화) - 프라하에서 휴식</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">종일</p> 여유롭게 프라하 시내를 둘러보거나 기념품 구매하며 여행 정리.
+                        </p>
+                        <p class="cost">예상 비용: 약 20만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 5만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/25 (수) - 프라하에서 휴식</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">종일</p> 귀국 전 마지막으로 여행의 여운을 느끼며 휴식.
+                        </p>
+                        <p class="cost">예상 비용: 약 20만원 (1인당) <br>(숙소비 약 15만원, 식비/활동비 약 5만원)</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/26 (목) - 부다페스트 → **인천** 귀국</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오전</p> 부다페스트(BUD) 공항으로 이동하여 한국으로 돌아가는 비행기 탑승.
+                        </p>
+                        <p class="cost">예상 비용: 항공권 비용에 포함</p>
+                    </div>
+                    <div class="timeline-item">
+                        <strong class="text-lg">2/27 (금) - 한국 도착</strong>
+                        <p class="text-sm mt-1">
+                            <p class="time">오후</p> 인천(ICN) 공항에 도착하며 한 달간의 유럽 여행을 마무리합니다.
+                        </p>
+                        <p class="cost">예상 비용: 0원</p>
+                    </div>
                 </div>
+            </section>
 
-                <div class="grid lg:grid-cols-5 gap-8">
-                    <!-- Dynamic Content -->
-                    <div id="course-details" class="lg:col-span-3 bg-white p-6 md:p-8 rounded-2xl shadow-xl transition-all duration-500">
-                        <!-- JS will populate this -->
+            <!-- Final Budget Summary -->
+            <section class="bg-teal-800 text-white p-8 rounded-2xl shadow-xl">
+                <h2 class="text-3xl font-bold mb-6 text-center">전체 여행 총 예산</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-lg">
+                    <div class="p-4 bg-teal-700 rounded-lg">
+                        <p class="font-semibold mb-1">🛩️ 항공권</p>
+                        <p>약 143만원</p>
                     </div>
-                    <!-- Budget Chart -->
-                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-xl flex flex-col justify-center items-center">
-                         <h3 class="text-xl font-semibold text-stone-700 mb-4 text-center">코스별 예상 예산 비교 (1인 기준)</h3>
-                         <div class="chart-container">
-                            <canvas id="budgetChart"></canvas>
-                        </div>
+                    <div class="p-4 bg-teal-700 rounded-lg">
+                        <p class="font-semibold mb-1">🏨 숙소</p>
+                        <p>약 350만원</p>
                     </div>
+                    <div class="p-4 bg-teal-700 rounded-lg">
+                        <p class="font-semibold mb-1">🚇 현지 교통수단</p>
+                        <p>약 45만원</p>
+                    </div>
+                    <div class="p-4 bg-teal-700 rounded-lg">
+                        <p class="font-semibold mb-1">💶 식비 & 활동비</p>
+                        <p>약 250만원</p>
+                    </div>
+                </div>
+                <div class="text-center mt-8">
+                    <p class="text-2xl font-bold">총 합계: 약 788만원</p>
                 </div>
             </section>
         </main>
     </div>
-
-    <script>
-        const courses = {
-            italy: {
-                title: '코스 1: 이탈리아 (로마 & 피렌체)',
-                icon: '🇮🇹',
-                concept: '스페인 여행 후, 유럽의 찬란한 역사를 간직한 이탈리아로 넘어가 유적지와 예술을 만끽하는 코스입니다.',
-                budgetTotal: '약 250 ~ 300만 원',
-                detailedItinerary: [
-                    '<strong>2/16 (금):</strong> 마드리드(MAD)에서 로마(FCO)로 이동. 숙소 체크인 후 저녁 식사 및 휴식.',
-                    '<strong>2/17 (토):</strong> **로마 시내 투어**. 콜로세움, 포로 로마노, 팔라티노 언덕 등 고대 로마 유적지 탐방.',
-                    '<strong>2/18 (일):</strong> **바티칸 시국**. 성 베드로 대성당, 바티칸 박물관 등을 둘러보며 예술과 종교의 중심지를 경험합니다.',
-                    '<strong>2/19 (월):</strong> **로마 자유 투어**. 트레비 분수, 판테온, 스페인 광장 등 유명 명소를 방문하고, 젤라또 맛집을 찾아다닙니다.',
-                    '<strong>2/20 (화):</strong> 기차로 **피렌체** 이동. 오후에는 미켈란젤로 언덕에 올라 피렌체 시내 전경을 감상합니다.',
-                    '<strong>2/21 (수):</strong> **피렌체 예술 투어**. 우피치 미술관, 두오모 성당 등을 방문하며 르네상스 예술을 만끽합니다.',
-                    '<strong>2/22 (목):</strong> 피렌체 근교 **피사** 당일치기. 기차로 약 1시간 소요되며, 피사의 사탑을 구경합니다.',
-                    '<strong>2/23 (금):</strong> 기차로 **베네치아** 이동. 곤돌라를 타고 대운하를 둘러보거나 리알토 다리를 구경합니다.',
-                    '<strong>2/24 (토):</strong> **베네치아 근교 투어**. 화려한 색감의 부라노 섬과 유리 공예로 유명한 무라노 섬을 방문합니다.',
-                    '<strong>2/25 (일):</strong> 베네치아 시내 투어. 산마르코 광장과 산마르코 대성당을 둘러보고, 쇼핑을 즐깁니다.',
-                    '<strong>2/26 (월):</strong> 여행의 마지막 여유. 카페에 앉아 커피를 마시거나 기념품을 구매합니다.',
-                    '<strong>2/27 (화):</strong> 베네치아(VCE)에서 인천으로 돌아오는 항공편 이용'
-                ],
-                detailedBudget: [
-                    { label: '항공권 (로마 이동 + 귀국편)', amount: '약 150만원' },
-                    { label: '숙소(12박)', amount: '약 180만원' },
-                    { label: '현지 경비', amount: '약 150만원' }
-                ],
-                finalTotal: '약 858 ~ 908만 원'
-            },
-            centralEurope: {
-                title: '코스 2: 중유럽 (프라하 & 빈)',
-                icon: '🇦🇹',
-                concept: '스페인 여행 후, 동유럽의 낭만적인 도시들로 넘어가는 코스입니다. 프라하 IN, 빈 OUT 동선으로 더욱 효율적입니다.',
-                budgetTotal: '약 220 ~ 270만 원',
-                detailedItinerary: [
-                    '<strong>2/16 (금):</strong> 마드리드(MAD) → 체코 프라하(PRG)로 저가 항공 이동. 오후에 도착하여 구시가지 광장을 중심으로 도시를 둘러봅니다.',
-                    '<strong>2/17 (토):</strong> **프라하 성 투어**. 프라하 성은 매일 개방되며, 성 비투스 대성당 등을 방문합니다.',
-                    '<strong>2/18 (일):</strong> **프라하 시내 투어**. 천문시계탑(매일 운영)에 올라가 도시를 내려다보고, 유대인 지구를 둘러봅니다.',
-                    '<strong>2/19 (월):</strong> **프라하 미식 투어**. 꼴레뇨, 뜨르들로 등 체코 전통 음식을 맛보고, 저녁에는 흑맥주와 함께 즐거운 시간을 보냅니다.',
-                    '<strong>2/20 (화):</strong> 기차로 **오스트리아 빈(VIE)** 이동. 오후에 도착하여 시내를 거닐며 빈의 분위기를 느낍니다.',
-                    '<strong>2/21 (수):</strong> **빈 투어**. 쇤브룬 궁전(매일 운영)을 방문하고, 시내의 예술가 거리를 둘러봅니다.',
-                    '<strong>2/22 (목):</strong> **빈 시내 투어**. 슈테판 대성당, 호프부르크 왕궁 등을 둘러보고, 오후에는 미술사 박물관을 관람합니다.',
-                    '<strong>2/23 (금):</strong> 기차로 헝가리 **부다페스트** 이동. 저녁에 도착하여 국회의사당의 아름다운 야경을 감상합니다.',
-                    '<strong>2/24 (토):</strong> **부다페스트 투어**. 어부의 요새, 부다 왕궁 등을 둘러보고, 세체니 온천에서 여행의 피로를 풉니다.',
-                    '<strong>2/25 (일):</strong> 부다페스트 시내 투어. 겔레르트 언덕에서 도시 전경을 감상하고 도나우 강을 따라 산책합니다.',
-                    '<strong>2/26 (월):</strong> 부다페스트에서 마지막 여유. 쇼핑을 즐기거나 기념품을 구매하며 여행을 정리합니다.',
-                    '<strong>2/27 (화):</strong> 부다페스트(BUD)에서 한국으로 돌아오는 항공편 이용'
-                ],
-                detailedBudget: [
-                    { label: '항공권 (프라하 이동 + 귀국편)', amount: '약 120만원' },
-                    { label: '숙소(12박)', amount: '약 120만원' },
-                    { label: '현지 경비', amount: '약 140만원' }
-                ],
-                finalTotal: '약 828 ~ 878만 원'
-            },
-            franceUk: {
-                title: '코스 3: 프랑스 & 영국',
-                icon: '🇫🇷',
-                concept: '스페인 여행 후, 프랑스와 영국의 미식, 패션, 도시 문화를 경험하는 코스입니다.',
-                budgetTotal: '약 300 ~ 350만 원',
-                detailedItinerary: [
-                    '<strong>2/16 (금):</strong> 마드리드(MAD) → 파리(CDG)로 저가 항공 이동. 오후에 도착하여 에펠탑 야경을 보며 낭만적인 밤을 보냅니다.',
-                    '<strong>2/17 (토):</strong> **파리 박물관 투어**. 루브르 박물관, 오르세 미술관 등 파리의 유명 박물관들을 방문하며 예술을 만끽합니다.',
-                    '<strong>2/18 (일):</strong> 파리 시내 투어. 샹젤리제 거리를 거닐고 개선문에서 파리 전경을 감상합니다.',
-                    '<strong>2/19 (월):</strong> **파리 근교 투어**. 기차를 타고 베르사유 궁전(월요일 휴관, 기차 이동)을 방문합니다.',
-                    '<strong>2/20 (화):</strong> 파리 자유 투어. 몽마르뜨 언덕, 사랑해 벽 등 낭만적인 장소들을 방문합니다.',
-                    '<strong>2/21 (수):</strong> 파리에서 런던으로 **유로스타**를 타고 이동. 런던에 도착하여 빅벤과 런던아이를 둘러봅니다.',
-                    '<strong>2/22 (목):</strong> **런던 박물관 투어**. 대영박물관(매일 개방), 내셔널 갤러리(매일 개방) 등을 방문하며 런던의 역사를 알아봅니다.',
-                    '<strong>2/23 (금):</strong> **런던 시내 투어**. 버킹엄 궁전에서 근위병 교대식을 관람하고, 타워 브릿지를 거닐며 도시를 만끽합니다.',
-                    '<strong>2/24 (토):</strong> **런던 근교 투어**. 기차를 타고 옥스퍼드나 캠브리지 등 유명 대학 도시를 방문합니다.',
-                    '<strong>2/25 (일):</strong> 런던 자유 투어. 코벤트 가든, 소호 등을 둘러보고 뮤지컬을 관람합니다.',
-                    '<strong>2/26 (월):</strong> 런던 시내 투어. 피시 앤 칩스를 맛보고, 해리포터 스튜디오를 방문합니다.',
-                    '<strong>2/27 (화):</strong> 런던(LHR)에서 한국으로 돌아오는 항공편 이용'
-                ],
-                detailedBudget: [
-                    { label: '항공/기차 (파리 이동 + 귀국편)', amount: '약 180만원' },
-                    { label: '숙소(12박)', amount: '약 180만원' },
-                    { label: '현지 경비', amount: '약 180만원' }
-                ],
-                finalTotal: '약 908 ~ 958만 원'
-            },
-            switzerland: {
-                title: '코스 4: 스위스 (알프스 대자연)',
-                icon: '🇨🇭',
-                concept: '스페인 여행 후, 웅장한 알프스의 자연 속에서 휴식과 특별한 경험을 만끽하는 코스입니다.',
-                budgetTotal: '약 320 ~ 370만 원',
-                detailedItinerary: [
-                    '<strong>2/16 (금):</strong> 마드리드(MAD)에서 스위스 취리히(ZRH)로 저가 항공 이동. 오후에 도착하여 취리히 시내를 가볍게 둘러봅니다.',
-                    '<strong>2/17 (토):</strong> **취리히 투어**. 프라우뮌스터 성당, 취리히 호수 등을 거닐며 도시의 낭만을 즐깁니다.',
-                    '<strong>2/18 (일):</strong> 기차로 **루체른** 이동. 그림 같은 루체른 호수와 카펠교를 따라 걷습니다.',
-                    '<strong>2/19 (월):</strong> **루체른 근교 투어**. 피르스트(First)나 필라투스 산 등을 방문하며 하이킹을 즐깁니다.',
-                    '<strong>2/20 (화):</strong> 기차로 **인터라켄** 이동. **알프스 액티비티의 중심지**인 인터라켄에서 패러글라이딩이나 스키를 즐깁니다.',
-                    '<strong>2/21 (수):</strong> **융프라우요흐 투어**. 유럽의 지붕이라 불리는 융프라우요흐에 올라 환상적인 설경을 감상합니다.',
-                    '<strong>2/22 (목):</strong> 기차로 **체르마트** 이동. 마테호른이 보이는 호텔에 체크인 후 휴식합니다.',
-                    '<strong>2/23 (금):</strong> **체르마트 하이킹**. 마테호른을 바라보며 겨울 하이킹을 즐기거나 스키를 타봅니다.',
-                    '<strong>2/24 (토):</strong> 체르마트 시내 투어. 고르너그라트 전망대(연중 무휴)에서 마테호른을 비롯한 알프스 봉우리들을 감상합니다.',
-                    '<strong>2/25 (일):</strong> 체르마트에서 스위스 주요 공항으로 이동',
-                    '<strong>2/26 (월):</strong> 스위스 주요 공항에서 한국으로 돌아오는 직항 항공편 이용',
-                    '<strong>2/27 (화):</strong> 귀국 비행기에서 휴식',
-                    '<strong>2/28 (수):</strong> 한국 도착'
-                ],
-                detailedBudget: [
-                    { label: '항공권 (취리히 이동 + 귀국편)', amount: '약 160만원' },
-                    { label: '숙소(12박)', amount: '약 210만원' },
-                    { label: '현지 경비', amount: '약 180만원' }
-                ],
-                finalTotal: '약 928 ~ 978만 원'
-            }
-        };
-
-        const courseDetailsContainer = document.getElementById('course-details');
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const budgetChartCanvas = document.getElementById('budgetChart');
-        let budgetChart;
-        
-        function updateContent(courseKey) {
-            const course = courses[courseKey];
-            let itineraryHtml = course.detailedItinerary.map(item => `
-                <li class="pl-6"><i class="fas fa-arrow-right mr-2 text-stone-500"></i>${item}</li>
-            `).join('');
-            
-            let detailedBudgetHtml = `
-                <ul class="list-disc list-inside ml-4 space-y-1">
-                    ${course.detailedBudget.map(item => `<li><span class="font-semibold">${item.label}:</span> ${item.amount}</li>`).join('')}
-                </ul>
-            `;
-        
-            courseDetailsContainer.innerHTML = `
-                <h3 class="text-2xl md:text-3xl font-bold text-teal-700 mb-4">${course.icon} ${course.title}</h3>
-                <p class="text-stone-600 mb-6">${course.concept}</p>
-                <div class="space-y-6">
-                    <div>
-                        <h4 class="font-semibold text-lg text-stone-800 flex items-center mb-2"><i class="fas fa-route mr-2 text-amber-500"></i>세부 일정</h4>
-                        <ul class="list-none space-y-2">
-                            ${itineraryHtml}
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-lg text-stone-800 flex items-center mb-2"><i class="fas fa-coins mr-2 text-amber-500"></i>예상 예산 (2/16 ~ 2/27)</h4>
-                        ${detailedBudgetHtml}
-                        <p class="font-bold mt-2">총 예상 비용: ${course.budgetTotal}</p>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-lg text-stone-800 flex items-center mb-2"><i class="fas fa-money-bill-wave mr-2 text-amber-500"></i>한 달 여행 총 예산</h4>
-                        <p class="pl-6 text-xl font-bold text-teal-700">${course.finalTotal} 원</p>
-                    </div>
-                </div>
-            `;
-            
-            tabButtons.forEach(btn => {
-                btn.classList.remove('tab-active');
-                if (btn.dataset.course === courseKey) {
-                    btn.classList.add('tab-active');
-                }
-            });
-
-            if (budgetChart) {
-                updateChartHighlight(courseKey);
-            }
-        }
-        
-        function createChart() {
-            const chartData = {
-                labels: ['이탈리아', '중유럽', '프랑스 & 영국', '스위스'],
-                datasets: [{
-                    label: '한 달 총 예상 예산 (만원)',
-                    data: [858, 828, 908, 928],
-                    backgroundColor: [
-                        'rgba(13, 148, 136, 0.6)', 
-                        'rgba(245, 158, 11, 0.6)', 
-                        'rgba(245, 158, 11, 0.6)', 
-                        'rgba(245, 158, 11, 0.6)'
-                    ],
-                    borderColor: [
-                        '#0f766e',
-                        '#b45309',
-                        '#b45309',
-                        '#b45309'
-                    ],
-                    borderWidth: 2,
-                    borderRadius: 5,
-                }]
-            };
-
-            const chartConfig = {
-                type: 'bar',
-                data: chartData,
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: false,
-                            min: 700,
-                            title: { display: true, text: '예산 (만원)' }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.x !== null) {
-                                        label += context.parsed.x + '만원 ~';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-            budgetChart = new Chart(budgetChartCanvas, chartConfig);
-        }
-        
-        function updateChartHighlight(courseKey) {
-            const keyMap = {
-                italy: 0,
-                centralEurope: 1,
-                franceUk: 2,
-                switzerland: 3
-            };
-            const activeIndex = keyMap[courseKey];
-            
-            const activeColor = 'rgba(13, 148, 136, 0.6)';
-            const inactiveColor = 'rgba(245, 158, 11, 0.6)';
-            const activeBorder = '#0f766e';
-            const inactiveBorder = '#b45309';
-
-            const backgroundColors = budgetChart.data.datasets[0].backgroundColor.map((_, index) => index === activeIndex ? activeColor : inactiveColor);
-            const borderColors = budgetChart.data.datasets[0].borderColor.map((_, index) => index === activeIndex ? activeBorder : inactiveBorder);
-            
-            budgetChart.data.datasets[0].backgroundColor = backgroundColors;
-            budgetChart.data.datasets[0].borderColor = borderColors;
-            budgetChart.update();
-        }
-
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const courseKey = button.dataset.course;
-                updateContent(courseKey);
-            });
-            button.classList.add('px-4', 'py-2', 'md:px-6', 'md:py-3', 'text-sm', 'md:text-base', 'font-semibold', 'rounded-full', 'cursor-pointer', 'transition-all', 'duration-300', 'bg-white', 'text-stone-700', 'hover:bg-amber-100');
-        });
-
-        window.addEventListener('load', () => {
-            createChart();
-            updateContent('italy');
-        });
-    </script>
 </body>
 </html>
